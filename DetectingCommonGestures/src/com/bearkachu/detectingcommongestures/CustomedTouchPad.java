@@ -1,7 +1,5 @@
 package com.bearkachu.detectingcommongestures;
 
-import android.os.SystemClock;
-
 public class CustomedTouchPad {
 	private long downTime;
 	private long eventTime;
