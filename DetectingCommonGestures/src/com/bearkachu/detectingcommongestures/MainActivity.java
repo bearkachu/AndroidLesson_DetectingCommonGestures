@@ -1,11 +1,18 @@
 package com.bearkachu.detectingcommongestures;
 
+import java.io.IOException;
+
 import android.app.Activity;
+import android.content.Context;
+import android.hardware.usb.UsbManager;
 import android.os.Bundle;
 import android.support.v4.view.MotionEventCompat;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MotionEvent;
+
+import com.hoho.android.usbserial.driver.UsbSerialDriver;
+import com.hoho.android.usbserial.driver.UsbSerialProber;
 
 public class MainActivity extends Activity {
 	// This example shows an activity, but you would use the same approach if
@@ -27,6 +34,35 @@ public class MainActivity extends Activity {
 	@Override
     public boolean onTouchEvent(MotionEvent event) {
 		int action = MotionEventCompat.getActionMasked(event);
+		//Get USBManager from Android.
+		UsbManager manager = (UsbManager) getSystemService(Context.USB_SERVICE);
+		// Find the first available driver.
+		UsbSerialDriver driver = UsbSerialProber.acquire(manager);
+		
+		if (driver != null) {
+			try {
+				driver.open();
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			try {
+				driver.setBaudRate(57600);
+				byte buffer[] = new byte[16];
+				int numByteRead = driver.read(buffer, 1000);
+				Log.d(DEBUG_TAG, "READ" + numByteRead + "bytes");
+			} catch (IOException e) {
+				//deal with error.
+			} finally {
+				try {
+					driver.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			
+		}
 		
 		switch(action) {
 		case (MotionEvent.ACTION_DOWN):
@@ -50,7 +86,10 @@ public class MainActivity extends Activity {
 			return true;
 		default:
 			return super.onTouchEvent(event);	
-		} 	
+		}
+		
+
+		
     }
 	
 	@Override
